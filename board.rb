@@ -11,6 +11,7 @@ class Board
   end
 
   def make_board(color, i)
+    # MAKE THIS BETTER!! >_<
     even = [0,2,4,6]
     odd = [1,3,5,7]
 

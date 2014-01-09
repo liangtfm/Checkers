@@ -3,24 +3,31 @@ require 'colorize'
 WHITE_MOVES = [[-1,-1], [-1, 1]]
 RED_MOVES = [[ 1,-1], [ 1, 1]]
 KING_MOVES = WHITE_MOVES + RED_MOVES
-TOKEN = {
-  :r => "O".colorize(:red),
-  :w => "O".colorize(:yellow),
-}
 
 class Piece
-  attr_accessor :move_dirs, :pos, :board, :color
+  attr_accessor :move_dirs, :pos, :board, :color, :kinged
   attr_reader :token
 
-  def initialize(pos, board, color)
+  def initialize(pos, board, color, kinged = false)
     @pos = pos
     @board = board
     @color = color
-    @token = :o
+    @token = token
+    @kinged = kinged
+  end
+
+  def token
+    if kinged == false
+      token = :o
+    else
+      token = :O
+    end
   end
 
   def move_dirs
-    if color == :r
+    if kinged == true
+      KING_MOVES
+    elsif color == :r
       RED_MOVES
     elsif color == :w
       WHITE_MOVES
@@ -63,7 +70,8 @@ class Piece
     # and if the piece it is jumping is not the same color
     middle_pos = [((move_end[0]+pos[0])/2), ((move_end[1]+pos[1])/2)]
     dir = [middle_pos[0] - pos[0], middle_pos[1] - pos[1]]
-    if @board[move_end].nil? && @board[middle_pos] && move_dirs.include?(dir) && @board[middle_pos].color != self.color
+
+    if @board[move_end].nil? && @board[middle_pos] && move_dirs.include?(dir) && @board[middle_pos].color != color
       true
     else
       false
@@ -76,9 +84,12 @@ class Piece
     # OR raises an InvalidMoveError.
     if valid_move_seq?(move_sequence)
       perform_moves!(move_sequence)
+      maybe_promote
     else
-      raise InvalidMoveError
+      # raise InvalidMoveError
+      raise "invalid move, bro!"
     end
+    nil
   end
 
   def perform_moves!(move_sequence)
@@ -105,7 +116,6 @@ class Piece
         else
           perform_jump(move)
         end
-        p pos
       end
     end
 
@@ -134,18 +144,18 @@ class Piece
   end
 
   def dup(board)
-    self.class.new(@pos, board, @color)
+    self.class.new(@pos, board, @color, @kinged)
   end
 
   def maybe_promote
     #check if piece is on other side
     #if so, give it KING_MOVES yo!
     if color == :r && pos[0] == 7
-      move_dirs = KING_MOVES
+      @board[pos].kinged = true
       puts "kingz0red!"
       return true
     elsif color == :w && pos[0] == 0
-      move_dirs = KING_MOVES
+      @board[pos].kinged = true
       puts "kingz0red!"
       return true
     end
