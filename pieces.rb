@@ -1,6 +1,12 @@
+require 'colorize'
+
 WHITE_MOVES = [[-1,-1], [-1, 1]]
 RED_MOVES = [[ 1,-1], [ 1, 1]]
 KING_MOVES = WHITE_MOVES + RED_MOVES
+TOKEN = {
+  :r => "O".colorize(:red),
+  :w => "O".colorize(:yellow),
+}
 
 class Piece
   attr_accessor :move_dirs, :pos, :board, :color
@@ -10,7 +16,7 @@ class Piece
     @pos = pos
     @board = board
     @color = color
-    @token = :O
+    @token = :o
   end
 
   def move_dirs
@@ -28,6 +34,7 @@ class Piece
     @board[move_end] = @board[start_pos]
     @board[move_end].pos = move_end
     @board[start_pos] = nil
+    puts "slide!"
   end
 
   def can_slide?(move_end)
@@ -44,10 +51,11 @@ class Piece
     return false unless can_jump?(move_end)
     middle_pos = [(move_end[0]+pos[0])/2, (move_end[1]+pos[1])/2]
     start_pos = pos
-    pos = move_end
     @board[move_end] = @board[start_pos]
+    @board[move_end].pos = move_end
     @board[start_pos] = nil
     @board[middle_pos] = nil
+    puts "jump!"
   end
 
   def can_jump?(move_end)
@@ -62,22 +70,67 @@ class Piece
     end
   end
 
-  def perform_moves
+  def perform_moves(move_sequence)
     # First checks valid_move_seq?, THEN
     # either calls perform_moves!
     # OR raises an InvalidMoveError.
+    if valid_move_seq?(move_sequence)
+      perform_moves!(move_sequence)
+    else
+      raise InvalidMoveError
+    end
   end
 
   def perform_moves!(move_sequence)
-    #  should not bother to try to restore the
+    # should not bother to try to restore the
     # original Board state if the move sequence fails.
+    if move_sequence.count == 1
+      if perform_slide(move_sequence[0]) == false
+        if perform_jump(move_sequence[0]) == false
+          raise "what?!?!?!?"
+          return false
+        else
+          perform_jump(move_sequence[0])
+        end
+      else
+        perform_slide(move_sequence[0])
+      end
+    else
+      move_sequence.each do |move|
+        p pos
+        p move
+        if perform_jump(move) == false
+          return false
+          puts "dat don't d'work!"
+        else
+          perform_jump(move)
+        end
+        p pos
+      end
+    end
 
+    true
   end
 
-  def valid_move_seq?
+  def valid_move_seq?(move_sequence)
     #This will probably require begin/rescue/else
     #dup the board and pieces
-    perform(moves!)
+    dup_board = @board.dup
+    dup_board.board.each_index do |i|
+      dup_board.board.each_index do |j|
+        if dup_board[[i,j]]
+          dup_board[[i,j]] = dup_board[[i,j]].dup(dup_board)
+        end
+      end
+    end
+
+    #check if moves are valid in sequence on duped board
+    begin
+      return false if dup_board[pos].perform_moves!(move_sequence) == false
+    rescue
+      puts "error!"
+    end
+    true
   end
 
   def dup(board)
@@ -85,15 +138,18 @@ class Piece
   end
 
   def maybe_promote
+    #check if piece is on other side
+    #if so, give it KING_MOVES yo!
+    if color == :r && pos[0] == 7
+      move_dirs = KING_MOVES
+      puts "kingz0red!"
+      return true
+    elsif color == :w && pos[0] == 0
+      move_dirs = KING_MOVES
+      puts "kingz0red!"
+      return true
+    end
 
+    false
   end
-
-  def find_dir(x, y)
-    dir = [(y[0] - x[0]), (y[1] - x[1])]
-    len = [dir[0].abs, dir[1].abs].max
-    dir[0] = (dir[0].to_f / len) unless len == 0
-    dir[1] = (dir[1].to_f / len) unless len == 0
-    [dir, len]
-  end
-
 end

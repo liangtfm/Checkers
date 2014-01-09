@@ -42,6 +42,26 @@ class Board
     end
   end
 
+  def render
+    render = draw_board
+    render.each_with_index do |row, i|
+      row.each_with_index do |cell, j|
+        k = [i,j]
+        l = i + j
+         color = l.even? ? :green : :blue
+        if cell == :_
+          print "   ".colorize(:background => color)
+        elsif self[k].color == :w
+          print " #{cell} ".colorize(:yellow).colorize(:background => color)
+        else
+          print " #{cell} ".colorize(:red).colorize(:background => color)
+        end
+      end
+      print "\n"
+    end
+    nil
+  end
+
   def [](pos)
     x, y = pos
     @board[x][y]
