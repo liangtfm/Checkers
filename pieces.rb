@@ -12,6 +12,10 @@ class Piece
     @token = :O
   end
 
+  def move_dirs
+    MOVES
+  end
+
   def perform_slide
 
   end
@@ -20,21 +24,35 @@ class Piece
 
   end
 
-  def can_jump?(move_end)
-    # return true if move_end is empty
-    # and if the piece it is jumping is not the same color
-    if @board[move_end].nil? && @board
-      true
-    end
-    false
+  # def can_jump?(move_end)
+  #   # return true if move_end is empty
+  #   # and if the piece it is jumping is not the same color
+  #   if @board[move_end].nil? && @board
+  #     true
+  #   end
+  #   false
+  # end
+
+  def perform_moves
+    # First checks valid_move_seq?, THEN
+    # either calls perform_moves!
+    # OR raises an InvalidMoveError.
   end
 
   def perform_moves!(move_sequence)
+    #  should not bother to try to restore the
+    # original Board state if the move sequence fails.
 
   end
 
   def valid_move_seq?
+    #This will probably require begin/rescue/else
+    #dup the board and pieces
     perform(moves!)
+  end
+
+  def dup(board)
+    self.class.new(@pos, board, @color)
   end
 
 end
