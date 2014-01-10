@@ -1,3 +1,7 @@
+# REV: code looks good to me and is very readable.
+#      a couple of minor subjective suggestions
+#      that don't matter. Good job bro!
+
 require 'colorize'
 require_relative 'pieces'
 require_relative 'board'
@@ -80,6 +84,8 @@ class Game
 
   end
 
+
+  # REV: I don't think you are calling this method from anywhere
   def render
     render = @board.render
   end

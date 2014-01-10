@@ -1,3 +1,7 @@
+# REV: I wouldn't put it in a separate file,
+# however, it's all about personal preference and
+# still looks fine to me
+
 class Array
   def deep_dup
     [].tap do |new_array|

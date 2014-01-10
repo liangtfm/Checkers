@@ -1,5 +1,7 @@
 require 'colorize'
 
+# REV: I actually prefer your implementation of the moves to mine,
+# yours is cleaner
 WHITE_MOVES = [[-1,-1], [-1, 1]]
 RED_MOVES = [[ 1,-1], [ 1, 1]]
 KING_MOVES = WHITE_MOVES + RED_MOVES
@@ -8,6 +10,10 @@ class Piece
   attr_accessor :move_dirs, :pos, :board, :color, :kinged
   attr_reader :token
 
+
+
+  # REV: lining these variables up would look cool,
+  # not an issue at all though
   def initialize(pos, board, color, kinged = false)
     @pos = pos
     @board = board
@@ -25,7 +31,7 @@ class Piece
   end
 
   def move_dirs
-    if kinged == true
+    if kinged == true # REV: you can omit 'true' if you want
       KING_MOVES
     elsif color == :r
       RED_MOVES
@@ -71,6 +77,8 @@ class Piece
     middle_pos = [((move_end[0]+pos[0])/2), ((move_end[1]+pos[1])/2)]
     dir = [middle_pos[0] - pos[0], middle_pos[1] - pos[1]]
 
+
+    # REV: multiple lines
     if @board[move_end].nil? && @board[middle_pos] && move_dirs.include?(dir) && @board[middle_pos].color != color
       true
     else
@@ -89,7 +97,7 @@ class Piece
       # raise InvalidMoveError
       raise "invalid move, bro!"
     end
-    nil
+    nil # REV: <- nice
   end
 
   def perform_moves!(move_sequence)
@@ -108,7 +116,7 @@ class Piece
       end
     else
       move_sequence.each do |move|
-        p pos
+        p pos # REV: still debugging :)
         p move
         if perform_jump(move) == false
           return false
