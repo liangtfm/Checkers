@@ -27,7 +27,7 @@ class Game
     puts "Let's play Checkers!"
 
     loop do
-      @board.render
+      render
       puts "it's #{color}'s turn!"
       turn
       break if win?
@@ -45,39 +45,30 @@ class Game
   end
 
   def turn
+    move_start = nil
 
-
+    while move_start == nil || @board[move_start] == nil || (@board[move_start] && @board[move_start].color != color)
       # get starting position
       puts "Which piece would you like to move? (ex. b6)"
       move_start = gets.chomp.downcase.split("")
       move_start = [KEY_MAP[move_start.last], move_start.first.ord - "a".ord]
+    end
 
-      #get move(s)
-      puts "Where would you like to move it? (ex. a5)"
+    # get move(s)
+    puts "Where would you like to move it? (ex. a5)"
+
+    loop do
       puts "You can add multiple spots, just enter f when finished"
-      move_end = gets.chomp.downcase.split("")
-      move_end = [KEY_MAP[move_end.last], move_end.first.ord - "a".ord]
-      @move_sequence << move_end
-      puts "Got it!"
+      user_input = gets.chomp
+      break if user_input == "f"
+      components = user_input.downcase.split("")
+      move = [KEY_MAP[components.last], components.first.ord - "a".ord]
+      @move_sequence << move
+    end
+    puts "Got it!"
 
-
-      @board[move_start].perform_moves(@move_sequence)
-      @move_sequence = []
-
-
-      # if @board[move_start].color != color
-      #   @move_sequence = []
-      # end
-
-      # @board[move_start].perform_moves(@move_sequence)
-      # @move_sequence = []
-    # rescue
-    #   puts "That sequence was garbage. Try again!".colorize(:red)
-    #   puts "Did you make sure you picked your own piece?".colorize(:red)
-    #   render
-    #   retry
-    # end
-
+    @board[move_start].perform_moves(@move_sequence)
+    @move_sequence = []
   end
 
   def render
